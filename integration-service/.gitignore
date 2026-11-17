@@ -1,0 +1,25 @@
+node_modules
+# Keep environment variables out of version control
+.env
+
+/generated/prisma
+
+# Local AI assistant configuration
+.agents/
+.claude/
+.windsurf/
+
+# Temporary debugging and inspection scripts
+/check-*.ts
+/inspect-*.ts
+/diagnose-*.ts
+/compare-*.ts
+/queue-one-retry.ts
+/run-*-test.ts
+/save-*-mapping.ts
+/verify-automatic-strapi-sync.ts
+
+# Source-level diagnostic scripts
+/src/check-*.ts
+/src/inspect-*.ts
+/src/queue-one-retry.ts

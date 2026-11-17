@@ -11,7 +11,7 @@ import { DashboardPlugin } from '@vendure/dashboard/plugin';
 import { GraphiqlPlugin } from '@vendure/graphiql-plugin';
 import 'dotenv/config';
 import path from 'path';
-
+import { WebhookPlugin } from './plugins/webhook-plugin/webhook-plugin';
 const IS_DEV = process.env.APP_ENV === 'dev';
 // PORT wins because hosting platforms inject it into the environment at runtime, and that
 // must take precedence over any value baked into the .env file at scaffold time.
@@ -43,23 +43,57 @@ export const config: VendureConfig = {
           secret: process.env.COOKIE_SECRET,
         },
     },
-    dbConnectionOptions: {
-        type: 'better-sqlite3',
-        // See the README.md "Migrations" section for an explanation of
-        // the `synchronize` and `migrations` options.
-        synchronize: false,
-        migrations: [path.join(__dirname, './migrations/*.+(js|ts)')],
-        logging: false,
-        database: path.join(__dirname, '../vendure.sqlite'),
-    },
+  dbConnectionOptions: {
+    type: 'better-sqlite3',
+    timeout: 30000,
+    enableWAL: true,
+    // See the README.md "Migrations" section for an explanation of
+    // the `synchronize` and `migrations` options.
+    synchronize: false,
+    migrations: [path.join(__dirname, './migrations/*.+(js|ts)')],
+    logging: false,
+    database: path.join(__dirname, '../vendure.sqlite'),
+},
     paymentOptions: {
         paymentMethodHandlers: [dummyPaymentHandler],
     },
     // When adding or altering custom field definitions, the database will
     // need to be updated. See the "Migrations" section in README.md.
-    customFields: {},
+    customFields: {
+    Product: [
+        {
+            name: 'strapiDocumentId',
+            type: 'string',
+            unique: true,
+            nullable: true,
+            public: false,
+        },
+        {
+            name: 'seoTitle',
+            type: 'string',
+            nullable: true,
+        },
+        {
+            name: 'seoDescription',
+            type: 'text',
+            nullable: true,
+        },
+        {
+            name: 'canonicalUrl',
+            type: 'string',
+            nullable: true,
+        },
+        {
+            name: 'specificationsJson',
+            type: 'text',
+            nullable: true,
+        },
+    ],
+},
+
     plugins: [
         GraphiqlPlugin.init(),
+            WebhookPlugin,
         AssetServerPlugin.init({
             route: 'assets',
             assetUploadDir: path.join(__dirname, '../static/assets'),
@@ -69,7 +103,10 @@ export const config: VendureConfig = {
             assetUrlPrefix: IS_DEV ? undefined : 'https://www.my-shop.com/assets/',
         }),
         DefaultSchedulerPlugin.init(),
-        DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),
+        DefaultJobQueuePlugin.init({
+    useDatabaseForBuffer: false,
+    pollInterval: 5000,
+}),
         DefaultSearchPlugin.init({ bufferUpdates: false, indexStockStatus: true }),
         EmailPlugin.init({
             // In dev mode, emails are written to disk instead of being sent, and the dev mailbox

@@ -1,0 +1,47 @@
+{
+  "kind": "collectionType",
+  "collectionName": "product_commerces",
+  "info": {
+    "singularName": "product-commerce",
+    "pluralName": "product-commerces",
+    "displayName": "Product Commerce"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+  "vendureProductId": {
+  "type": "string",
+  "required": true,
+  "unique": true
+},
+ "commerceEnabled": {
+  "type": "boolean",
+  "default": false
+},
+    "variantsSnapshot": {
+      "type": "json"
+    },
+    "lastSyncedAt": {
+      "type": "datetime"
+    },
+   "syncStatus": {
+  "type": "enumeration",
+  "enum": [
+    "pending",
+    "synced",
+    "failed",
+    "conflict",
+    "archived"
+  ],
+   "default": "pending"
+},
+"product": {
+  "type": "relation",
+  "relation": "oneToOne",
+  "target": "api::product.product",
+  "inversedBy": "productCommerce"
+}
+  }
+}

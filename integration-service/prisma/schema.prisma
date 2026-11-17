@@ -1,0 +1,57 @@
+generator client {
+  provider            = "prisma-client"
+  output              = "../generated/prisma"
+  importFileExtension = "ts"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model ProductMapping {
+  id               String    @id @default(cuid())
+  strapiDocumentId String    @unique
+  vendureProductId String    @unique
+  contentHash      String?
+  lastSyncedAt     DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+model SyncLog {
+  id            String    @id @default(cuid())
+  eventId       String    @unique
+  source        String
+  eventType     String
+  entityType    String
+  entityId      String
+  status        String    @default("received")
+  errorMessage  String?
+  receivedAt    DateTime  @default(now())
+  processedAt   DateTime?
+  attemptCount  Int       @default(0)
+  lastAttemptAt DateTime?
+  nextRetryAt   DateTime?
+  payload       String?
+
+  @@index([status, receivedAt])
+  @@index([entityType, entityId])
+  @@index([status, nextRetryAt])
+}
+model CategoryMapping {
+  id                  String   @id @default(cuid())
+  strapiDocumentId    String   @unique
+  vendureCollectionId String   @unique
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model MediaMapping {
+  id                  String   @id @default(cuid())
+  strapiFileDocumentId String  @unique
+  vendureAssetId      String   @unique
+  fileName            String
+  mimeType            String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
